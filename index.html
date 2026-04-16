@@ -1,263 +1,389 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Minecraft Clone</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis AI Assistant</title>
     <style>
-        body {
+        * {
             margin: 0;
-            padding: 20px;
-            background: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .jarvis-container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
-            align-items: center;
+            position: relative;
+            overflow: hidden;
         }
-        canvas {
-            border: 2px solid #333;
-            background: #87CEEB;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-        }
-        .controls {
-            margin-top: 10px;
+
+        .header {
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            padding: 20px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .hud {
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            margin-bottom: 5px;
+        }
+
+        .status {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .jarvis-message {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-container {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mic-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .mic-btn.listening {
+            background: linear-gradient(135deg, #4ecdc4, #44bdad);
+            box-shadow: 0 0 30px rgba(78, 205, 196, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .text-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 15px 25px;
+            color: white;
+            font-size: 1em;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .text-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .text-input:focus {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .voice-indicator {
             position: absolute;
             top: 10px;
-            left: 10px;
-            font-size: 18px;
-            font-weight: bold;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+            display: none;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .voice-indicator.active {
+            display: block;
+        }
+
+        /* Scrollbar */
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="hud">
-        <div>Block: <span id="blockType">Grass</span></div>
-        <div>X: <span id="posX">0</span> Y: <span id="posY">0</span></div>
-    </div>
-    <canvas id="game" width="800" height="600"></canvas>
-    <div class="controls">
-        <div>WASD/Arrows: Move | Mouse: Look | Click: Break/Place | 1-3: Block types</div>
-        <div>Hold Shift: Run | Space: Jump | R: Reset world</div>
+    <div class="jarvis-container">
+        <div class="header">
+            <div class="logo">🤖 JARVIS</div>
+            <div class="status" id="status">Awaiting command...</div>
+            <div class="voice-indicator" id="voiceIndicator"></div>
+        </div>
+        
+        <div class="main-content">
+            <div class="chat-container" id="chatContainer">
+                <div class="message jarvis-message">
+                    <strong>Jarvis:</strong> Hello, sir. I am at your service. How may I assist you today? You can speak or type your commands.
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <button class="mic-btn" id="micBtn">🎤</button>
+                <input type="text" class="text-input" id="textInput" placeholder="Type your command or use voice...">
+            </div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('game');
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
+        class JarvisAI {
+            constructor() {
+                this.recognition = null;
+                this.synthesis = window.speechSynthesis;
+                this.isListening = false;
+                this.chatContainer = document.getElementById('chatContainer');
+                this.micBtn = document.getElementById('micBtn');
+                this.textInput = document.getElementById('textInput');
+                this.status = document.getElementById('status');
+                this.voiceIndicator = document.getElementById('voiceIndicator');
+                
+                this.initSpeechRecognition();
+                this.bindEvents();
+                this.welcome();
+            }
 
-        // Game state
-        const WORLD_WIDTH = 128;
-        const WORLD_HEIGHT = 64;
-        const BLOCK_SIZE = 16;
-        const CHUNK_SIZE = 32;
+            initSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window) {
+                    this.recognition = new webkitSpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+                    this.recognition.lang = 'en-US';
+                    
+                    this.recognition.onstart = () => {
+                        this.isListening = true;
+                        this.micBtn.classList.add('listening');
+                        this.status.textContent = 'Listening...';
+                        this.voiceIndicator.classList.add('active');
+                    };
+                    
+                    this.recognition.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        this.processCommand(transcript);
+                    };
+                    
+                    this.recognition.onend = () => {
+                        this.isListening = false;
+                        this.micBtn.classList.remove('listening');
+                        this.status.textContent = 'Awaiting command...';
+                        this.voiceIndicator.classList.remove('active');
+                    };
+                }
+            }
 
-        let world = new Array(WORLD_HEIGHT).fill(null).map(() => new Array(WORLD_WIDTH).fill(0));
-        let player = { x: 64, y: 20, vx: 0, vy: 0, width: 12, height: 20, onGround: false, speed: 0.2, jump: -6 };
-        let camera = { x: 0, y: 0 };
-        let keys = {};
-        let mouse = { x: 0, y: 0, down: false };
-        let selectedBlock = 1; // 0=air, 1=grass, 2=dirt, 3=stone
-        let blockNames = ['Air', 'Grass', 'Dirt', 'Stone'];
-
-        // Block colors
-        const blockColors = [
-            [0, 0, 0, 0],      // Air (transparent)
-            [34, 139, 34, 255], // Grass
-            [139, 69, 19, 255], // Dirt
-            [128, 128, 128, 255] // Stone
-        ];
-
-        // Generate terrain
-        function generateWorld() {
-            for (let x = 0; x < WORLD_WIDTH; x++) {
-                let height = 25 + Math.sin(x * 0.1) * 8 + Math.sin(x * 0.05) * 4;
-                for (let y = 0; y < WORLD_HEIGHT; y++) {
-                    if (y > height) {
-                        if (y > height + 8) {
-                            world[y][x] = 3; // Stone
-                        } else if (y > height + 3) {
-                            world[y][x] = 2; // Dirt
-                        } else {
-                            world[y][x] = 1; // Grass
-                        }
+            bindEvents() {
+                this.micBtn.addEventListener('click', () => this.toggleListening());
+                this.textInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.processCommand(this.textInput.value);
+                        this.textInput.value = '';
                     }
+                });
+            }
+
+            toggleListening() {
+                if (!this.recognition) {
+                    this.addMessage('user', 'Voice recognition not supported in this browser.');
+                    return;
                 }
+
+                if (this.isListening) {
+                    this.recognition.stop();
+                } else {
+                    this.recognition.start();
+                }
+            }
+
+            async processCommand(command) {
+                if (!command.trim()) return;
+
+                this.addMessage('user', command);
+                
+                // Simulate typing effect and AI response
+                this.status.textContent = 'Processing...';
+                
+                const response = await this.getJarvisResponse(command.toLowerCase());
+                this.addMessage('jarvis', response);
+                this.speak(response);
+                this.status.textContent = 'Awaiting command...';
+            }
+
+            async getJarvisResponse(command) {
+                // Simple command matching - you can expand this or integrate with an AI API
+                if (command.includes('hello') || command.includes('hi')) {
+                    return "Greetings, sir. How may I assist you today?";
+                }
+                if (command.includes('time')) {
+                    return `The current time is ${new Date().toLocaleTimeString()}`;
+                }
+                if (command.includes('date')) {
+                    return `Today's date is ${new Date().toLocaleDateString()}`;
+                }
+                if (command.includes('weather')) {
+                    return "I would need your location to provide accurate weather information, sir.";
+                }
+                if (command.includes('joke')) {
+                    const jokes = [
+                        "Why don't scientists trust atoms? Because they make up everything!",
+                        "Why did the scarecrow win an award? He was outstanding in his field!",
+                        "Why don't eggs tell jokes? They'd crack each other up!"
+                    ];
+                    return jokes[Math.floor(Math.random() * jokes.length)];
+                }
+                if (command.includes('thank') || command.includes('thanks')) {
+                    return "You're welcome, sir. Always at your service.";
+                }
+                if (command.includes('bye') || command.includes('goodbye')) {
+                    return "Goodbye, sir. Have a wonderful day!";
+                }
+                if (command.includes('clear') || command.includes('reset')) {
+                    this.chatContainer.innerHTML = '';
+                    return "Chat history cleared, sir.";
+                }
+
+                // Default responses
+                const responses = [
+                    "Interesting command, sir. Could you be more specific?",
+                    "I'll need more details to assist you properly.",
+                    "Processing that command... How else may I help?",
+                    "That's a fascinating request. What would you like me to do specifically?"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            addMessage(sender, text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                
+                const senderName = sender === 'jarvis' ? 'Jarvis' : 'You';
+                messageDiv.innerHTML = `<strong>${senderName}:</strong> ${text}`;
+                
+                this.chatContainer.appendChild(messageDiv);
+                this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+            }
+
+            speak(text) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 0.9;
+                utterance.volume = 0.8;
+                this.synthesis.speak(utterance);
+            }
+
+            welcome() {
+                setTimeout(() => {
+                    this.speak("Hello, sir. I am Jarvis. How may I assist you today?");
+                }, 500);
             }
         }
 
-        // Collision detection
-        function collides(x, y, w, h) {
-            const left = Math.floor(x / BLOCK_SIZE);
-            const right = Math.floor((x + w) / BLOCK_SIZE);
-            const top = Math.floor(y / BLOCK_SIZE);
-            const bottom = Math.floor((y + h) / BLOCK_SIZE);
-
-            for (let by = top; by <= bottom; by++) {
-                for (let bx = left; bx <= right; bx++) {
-                    if (bx >= 0 && bx < WORLD_WIDTH && by >= 0 && by < WORLD_HEIGHT) {
-                        if (world[by][bx] !== 0) return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // Update player physics
-        function updatePlayer() {
-            // Input
-            let speed = keys['Shift'] ? player.speed * 2 : player.speed;
-            if (keys['a'] || keys['A'] || keys['ArrowLeft']) player.vx = -speed;
-            else if (keys['d'] || keys['D'] || keys['ArrowRight']) player.vx = speed;
-            else player.vx *= 0.8;
-
-            if ((keys['w'] || keys['W'] || keys['ArrowUp'] || keys[' ']) && player.onGround) {
-                player.vy = player.jump;
-                player.onGround = false;
-            }
-
-            // Gravity
-            player.vy += 0.2;
-            if (player.vy > 8) player.vy = 8;
-
-            // Move X
-            let newX = player.x + player.vx;
-            if (!collides(newX, player.y, player.width, player.height)) {
-                player.x = newX;
-            }
-
-            // Move Y
-            let newY = player.y + player.vy;
-            if (collides(player.x, newY, player.width, player.height)) {
-                if (player.vy > 0) {
-                    player.onGround = true;
-                }
-                player.vy = 0;
-                while (!collides(player.x, newY, player.width, player.height)) {
-                    newY += player.vy > 0 ? 1 : -1;
-                }
-                player.y = newY;
-            } else {
-                player.y = newY;
-                player.onGround = false;
-            }
-
-            // Camera follow
-            camera.x = player.x - canvas.width / 2;
-            camera.y = player.y - canvas.height / 2;
-        }
-
-        // Mouse interaction
-        canvas.addEventListener('mousemove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - rect.left;
-            mouse.y = e.clientY - rect.top;
+        // Initialize Jarvis when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new JarvisAI();
         });
-
-        canvas.addEventListener('click', (e) => {
-            const worldX = Math.floor((mouse.x + camera.x) / BLOCK_SIZE);
-            const worldY = Math.floor((mouse.y + camera.y) / BLOCK_SIZE);
-            
-            if (worldX >= 0 && worldX < WORLD_WIDTH && worldY >= 0 && worldY < WORLD_HEIGHT) {
-                if (e.button === 0) { // Left click - break
-                    world[worldY][worldX] = 0;
-                } else if (e.button === 2) { // Right click - place
-                    if (!collides(worldX * BLOCK_SIZE, worldY * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)) {
-                        world[worldY][worldX] = selectedBlock;
-                    }
-                }
-            }
-        });
-
-        canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-        // Keyboard controls
-        document.addEventListener('keydown', (e) => {
-            keys[e.key] = true;
-            if (e.key >= '1' && e.key <= '3') {
-                selectedBlock = parseInt(e.key);
-                document.getElementById('blockType').textContent = blockNames[selectedBlock];
-            }
-            if (e.key.toLowerCase() === 'r') {
-                generateWorld();
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
-
-        // Render
-        function render() {
-            // Clear
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // World
-            const startX = Math.max(0, Math.floor(camera.x / BLOCK_SIZE) - 1);
-            const endX = Math.min(WORLD_WIDTH, Math.floor((camera.x + canvas.width) / BLOCK_SIZE) + 1);
-            const startY = Math.max(0, Math.floor(camera.y / BLOCK_SIZE) - 1);
-            const endY = Math.min(WORLD_HEIGHT, Math.floor((camera.y + canvas.height) / BLOCK_SIZE) + 1);
-
-            for (let y = startY; y < endY; y++) {
-                for (let x = startX; x < endX; x++) {
-                    const block = world[y][x];
-                    if (block !== 0) {
-                        ctx.fillStyle = `rgba(${blockColors[block][0]}, ${blockColors[block][1]}, ${blockColors[block][2]}, ${blockColors[block][3]/255})`;
-                        ctx.fillRect(
-                            x * BLOCK_SIZE - camera.x,
-                            y * BLOCK_SIZE - camera.y,
-                            BLOCK_SIZE,
-                            BLOCK_SIZE
-                        );
-
-                        // Block outline
-                        ctx.strokeStyle = '#000';
-                        ctx.lineWidth = 1;
-                        ctx.strokeRect(
-                            x * BLOCK_SIZE - camera.x,
-                            y * BLOCK_SIZE - camera.y,
-                            BLOCK_SIZE,
-                            BLOCK_SIZE
-                        );
-                    }
-                }
-            }
-
-            // Player
-            ctx.fillStyle = '#FF6B6B';
-            ctx.fillRect(player.x - camera.x, player.y - camera.y, player.width, player.height);
-            ctx.fillStyle = '#FFF';
-            ctx.fillRect(player.x - camera.x + 2, player.y - camera.y + 2, 8, 8); // Eyes
-
-            // Crosshair
-            ctx.strokeStyle = '#FFF';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(mouse.x - 8, mouse.y);
-            ctx.lineTo(mouse.x + 8, mouse.y);
-            ctx.moveTo(mouse.x, mouse.y - 8);
-            ctx.lineTo(mouse.x, mouse.y + 8);
-            ctx.stroke();
-
-            // Update HUD
-            document.getElementById('posX').textContent = Math.floor(player.x / BLOCK_SIZE);
-            document.getElementById('posY').textContent = Math.floor(player.y / BLOCK_SIZE);
-        }
-
-        // Game loop
-        function gameLoop() {
-            updatePlayer();
-            render();
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Start game
-        generateWorld();
-        gameLoop();
     </script>
 </body>
 </html>
