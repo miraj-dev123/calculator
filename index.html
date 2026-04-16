@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JARVIS - AI Assistant</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
@@ -14,150 +12,160 @@
         }
 
         body {
-            font-family: 'Orbitron', monospace;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
-            color: #00ff88;
+            color: #ffffff;
             height: 100vh;
             overflow: hidden;
             position: relative;
         }
 
-        /* Animated Background */
-        .matrix-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.1;
-        }
-
-        /* Main Container */
-        .jarvis-container {
-            display: flex;
+        .interface {
             height: 100vh;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 300px;
-            background: rgba(0, 255, 136, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-right: 20px;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .status {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .status.online {
-            color: #00ff88;
-        }
-
-        .status.offline {
-            color: #ff4444;
-        }
-
-        .voice-btn {
-            width: 100%;
-            height: 80px;
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: 700;
-            color: #000;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            font-family: 'Orbitron', monospace;
-        }
-
-        .voice-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
-        }
-
-        .voice-btn.listening {
-            background: linear-gradient(45deg, #ff6b6b, #ff5252);
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .quick-commands {
-            margin-top: 30px;
-        }
-
-        .quick-btn {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0, 255, 136, 0.2);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            font-family: 'Orbitron', monospace;
-            transition: all 0.3s ease;
-        }
-
-        .quick-btn:hover {
-            background: rgba(0, 255, 136, 0.4);
-        }
-
-        /* Main Chat Area */
-        .chat-container {
-            flex: 1;
             display: flex;
             flex-direction: column;
-            background: rgba(0, 255, 136, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            padding: 30px;
-            overflow: hidden;
+            position: relative;
         }
 
-        .chat-header {
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 28px;
-            font-weight: 900;
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            border-bottom: 2px solid #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00d4ff, #ff00ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 10px;
         }
 
-        .chat-messages {
+        .status {
+            color: #00ff88;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .main-content {
             flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .chat-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 30px;
             overflow-y: auto;
-            max-height: 500px;
-            margin-bottom: 30px;
-            padding-right: 10px;
+            border: 1px solid #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
         }
 
         .message {
             margin-bottom: 20px;
-            padding: 15px 20px;
+            padding: 15px;
             border-radius: 15px;
-            max-width: 80%;
-            word-wrap: break-word;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            margin-left: 20%;
+            text-align: right;
+        }
+
+        .jarvis-message {
+            background: linear-gradient(135deg, #ff00ff, #cc00cc);
+            margin-right: 20%;
+        }
+
+        .input-container {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 2px solid #00d4ff;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #00d4ff;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            backdrop-filter: blur(10px);
+        }
+
+        #userInput::placeholder {
+            color: #888;
+        }
+
+        .voice-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mic-btn {
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+        }
+
+        .mic-btn.listening {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+            animation: pulse 1.5s infinite;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .listening-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 20px;
+            height: 20px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            display: none;
         }
 
         @keyframes fadeIn {
@@ -165,119 +173,59 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .user-message {
-            background: rgba(0, 255, 136, 0.2);
-            border-right: 4px solid #00ff88;
-            margin-left: auto;
-            text-align: right;
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        .jarvis-message {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 4px solid #00ff88;
-        }
-
-        .chat-input-container {
-            display: flex;
-            gap: 15px;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            border-radius: 25px;
-            color: #00ff88;
-            font-family: 'Orbitron', monospace;
-            font-size: 16px;
-        }
-
-        .chat-input::placeholder {
-            color: rgba(0, 255, 136, 0.5);
-        }
-
-        .send-btn {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
-            border: none;
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
             border-radius: 50%;
-            color: #000;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
         }
 
-        .send-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .jarvis-container {
-                flex-direction: column;
-                padding: 10px;
-            }
-            
-            .sidebar {
-                width: 100%;
-                margin-right: 0;
-                margin-bottom: 20px;
-            }
-        }
-
-        /* Scrollbar */
-        .chat-messages::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .chat-messages::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: #00ff88;
-            border-radius: 4px;
+        .glow {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
         }
     </style>
 </head>
 <body>
-    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    <div class="listening-indicator" id="listeningIndicator"></div>
+    
+    <div class="interface">
+        <div class="header">
+            <h1>JARVIS</h1>
+            <div class="status" id="status">SYSTEM ONLINE - READY FOR COMMANDS</div>
+        </div>
 
-    <div class="jarvis-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="status online" id="status">
-                <div>🟢 ONLINE</div>
-                <div style="font-size: 12px; opacity: 0.7;">Listening Active</div>
-            </div>
-            
-            <button class="voice-btn" id="voiceBtn">
-                🎤 Voice Mode
-            </button>
-            
-            <div class="quick-commands">
-                <div class="quick-btn" onclick="quickCommand('time')">🕐 What time is it?</div>
-                <div class="quick-btn" onclick="quickCommand('weather')">🌤️ Weather</div>
-                <div class="quick-btn" onclick="quickCommand('joke')">😂 Tell me a joke</div>
-                <div class="quick-btn" onclick="quickCommand('news')">📰 Latest news</div>
-                <div class="quick-btn" onclick="quickCommand('memory')">🧠 My memory</div>
+        <div class="main-content">
+            <div class="chat-container" id="chatContainer">
+                <div class="message jarvis-message">
+                    <strong>JARVIS:</strong> Good day, sir. I am JARVIS, your personal AI assistant. How may I assist you today? You can type or use voice commands.
+                </div>
             </div>
         </div>
 
-        <!-- Chat Area -->
-        <div class="chat-container">
-            <div class="chat-header">JARVIS AI</div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="message jarvis-message">
-                    <strong>JARVIS:</strong> Online and ready, Sir. How may I assist you today?
+        <div class="input-container">
+            <div class="input-group">
+                <input type="text" id="userInput" placeholder="Enter your command..." autocomplete="off">
+                <div class="voice-controls">
+                    <button class="btn mic-btn" id="micBtn" title="Voice Input">
+                        🎤
+                    </button>
+                    <button class="btn send-btn" id="sendBtn">
+                        Send
+                    </button>
                 </div>
-            </div>
-            <div class="chat-input-container">
-                <input type="text" class="chat-input" id="chatInput" placeholder="Type your command or say 'JARVIS'...">
-                <button class="send-btn" id="sendBtn">➤</button>
             </div>
         </div>
     </div>
@@ -285,255 +233,269 @@
     <script>
         class JARVIS {
             constructor() {
-                this.isListening = false;
                 this.recognition = null;
-                this.conversationMemory = [];
-                this.mood = 'neutral';
+                this.isListening = false;
+                this.synthesis = window.speechSynthesis;
+                this.voice = null;
+                
                 this.init();
-                this.createMatrixBackground();
+                this.loadVoices();
             }
 
             init() {
-                this.bindEvents();
-                this.speak("JARVIS online and ready, Sir");
-                this.updateStatus('🟢 ONLINE', true);
+                this.chatContainer = document.getElementById('chatContainer');
+                this.userInput = document.getElementById('userInput');
+                this.micBtn = document.getElementById('micBtn');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.status = document.getElementById('status');
+                this.listeningIndicator = document.getElementById('listeningIndicator');
+
+                this.setupEventListeners();
+                this.initSpeechRecognition();
             }
 
-            bindEvents() {
-                const voiceBtn = document.getElementById('voiceBtn');
-                const sendBtn = document.getElementById('sendBtn');
-                const chatInput = document.getElementById('chatInput');
-
-                voiceBtn.addEventListener('click', () => this.toggleVoice());
-                sendBtn.addEventListener('click', () => this.sendMessage());
-                chatInput.addEventListener('keypress', (e) => {
+            setupEventListeners() {
+                this.micBtn.addEventListener('click', () => this.toggleListening());
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.userInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') this.sendMessage();
                 });
+            }
 
-                // Voice recognition setup
+            initSpeechRecognition() {
                 if ('webkitSpeechRecognition' in window) {
                     this.recognition = new webkitSpeechRecognition();
                     this.recognition.continuous = false;
                     this.recognition.interimResults = false;
                     this.recognition.lang = 'en-US';
-                    
+
                     this.recognition.onstart = () => {
-                        this.setListening(true);
+                        this.isListening = true;
+                        this.micBtn.classList.add('listening');
+                        this.listeningIndicator.style.display = 'block';
+                        this.updateStatus('Listening...');
                     };
-                    
+
                     this.recognition.onresult = (event) => {
-                        const command = event.results[0][0].transcript.toLowerCase();
-                        this.processCommand(command);
+                        const transcript = event.results[0][0].transcript;
+                        this.userInput.value = transcript;
+                        this.sendMessage();
                     };
-                    
+
                     this.recognition.onend = () => {
-                        this.setListening(false);
+                        this.isListening = false;
+                        this.micBtn.classList.remove('listening');
+                        this.listeningIndicator.style.display = 'none';
+                        this.updateStatus('READY FOR COMMANDS');
                     };
-                }
-            }
 
-            toggleVoice() {
-                if (this.isListening) {
-                    this.stopListening();
+                    this.recognition.onerror = () => {
+                        this.isListening = false;
+                        this.micBtn.classList.remove('listening');
+                        this.listeningIndicator.style.display = 'none';
+                        this.updateStatus('Voice recognition error. Please try again.');
+                    };
                 } else {
-                    this.startListening();
+                    this.micBtn.style.display = 'none';
                 }
             }
 
-            startListening() {
-                if (this.recognition) {
+            loadVoices() {
+                const voices = this.synthesis.getVoices();
+                this.voice = voices.find(voice => 
+                    voice.name.includes('Google') || 
+                    voice.name.includes('Microsoft') || 
+                    voice.lang.startsWith('en-')
+                ) || voices[0];
+            }
+
+            speak(text) {
+                return new Promise((resolve) => {
+                    if (this.synthesis.speaking) {
+                        this.synthesis.cancel();
+                    }
+
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.voice = this.voice;
+                    utterance.rate = 0.9;
+                    utterance.pitch = 0.9;
+                    utterance.volume = 0.8;
+
+                    utterance.onend = resolve;
+                    utterance.onerror = resolve;
+
+                    this.synthesis.speak(utterance);
+                });
+            }
+
+            async sendMessage() {
+                const message = this.userInput.value.trim();
+                if (!message) return;
+
+                this.addMessage('user', message);
+                this.userInput.value = '';
+                this.addMessage('jarvis', '<span class="loading"></span> Processing...');
+
+                try {
+                    const response = await this.getJarvisResponse(message);
+                    const lastMessage = this.chatContainer.lastElementChild;
+                    lastMessage.innerHTML = `<strong>JARVIS:</strong> ${response}`;
+                    this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+                    await this.speak(response);
+                } catch (error) {
+                    const lastMessage = this.chatContainer.lastElementChild;
+                    lastMessage.innerHTML = `<strong>JARVIS:</strong> Sorry sir, I encountered an error. Please try again.`;
+                }
+            }
+
+            async getJarvisResponse(message) {
+                // Simulate "knows all things" with comprehensive knowledge base + AI-like responses
+                const responses = await this.generateIntelligentResponse(message);
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            generateIntelligentResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Knowledge base - JARVIS "knows all things"
+                const knowledge = {
+                    // Personal assistant
+                    greetings: [
+                        "Good day, sir. How may I be of service?",
+                        "At your service, sir.",
+                        "Greetings. What can I do for you today?",
+                        "Hello sir. Ready to assist."
+                    ],
+                    
+                    time: [
+                        `The current time is ${new Date().toLocaleTimeString()}.`,
+                        `It is currently ${new Date().toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true})}.`,
+                    ],
+                    
+                    date: [
+                        `Today's date is ${new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}.`,
+                        `It is ${new Date().toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})}.`,
+                    ],
+                    
+                    weather: [
+                        "Accessing weather systems... Current conditions show mild temperatures with clear skies, sir.",
+                        "Weather data indicates optimal conditions for outdoor activities.",
+                        "The weather appears favorable today."
+                    ],
+                    
+                    jokes: [
+                        "Why don't scientists trust atoms? Because they make up everything!",
+                        "I told my computer I needed a break, and now it won't stop sending me KitKats.",
+                        "Why was the computer cold? It left its Windows open!"
+                    ],
+                    
+                    facts: [
+                        "Did you know? The human brain contains approximately 86 billion neurons.",
+                        "Interesting fact: Octopuses have three hearts and blue blood.",
+                        "The speed of light is exactly 299,792,458 meters per second in a vacuum."
+                    ],
+                    
+                    tech: [
+                        "Quantum computing represents the next frontier in processing power, sir.",
+                        "Current AI models process information through transformer architectures with billions of parameters.",
+                        "Blockchain technology ensures decentralized, immutable transaction records."
+                    ],
+                    
+                    commands: [
+                        "Voice commands active. Say 'Jarvis' followed by your request.",
+                        "I can help with time, date, weather, jokes, facts, calculations, and more.",
+                        "Try asking about science, technology, history, or request specific information."
+                    ],
+                    
+                    calculations: [
+                        "I can perform complex mathematical calculations. Please provide the equation.",
+                        "Ready for mathematical operations, sir."
+                    ],
+                    
+                    default: [
+                        "That's most intriguing, sir. Processing your request...",
+                        "Analyzing your query. One moment please.",
+                        "Very good, sir. Let me check my databases.",
+                        "Understood. Accessing relevant information.",
+                        "Excellent question. Let me provide the details."
+                    ]
+                };
+
+                // Match patterns
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                    return knowledge.greetings;
+                }
+                if (lowerMessage.includes('time')) return knowledge.time;
+                if (lowerMessage.includes('date') || lowerMessage.includes('today')) return knowledge.date;
+                if (lowerMessage.includes('weather')) return knowledge.weather;
+                if (lowerMessage.includes('joke')) return knowledge.jokes;
+                if (lowerMessage.includes('fact')) return knowledge.facts;
+                if (lowerMessage.includes('tech') || lowerMessage.includes('ai') || lowerMessage.includes('computer')) return knowledge.tech;
+                if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) return knowledge.commands;
+                if (lowerMessage.includes('calculate') || lowerMessage.match(/\d+\s*[\+\-\*\/]\s*\d+/)) {
+                    return this.handleCalculation(message);
+                }
+
+                return knowledge.default;
+            }
+
+            handleCalculation(message) {
+                try {
+                    // Simple calculator using eval (safe for basic math)
+                    const cleanExpr = message.replace(/[^0-9+\-*/().\s]/g, '');
+                    const result = eval(cleanExpr);
+                    return `Calculation complete: ${cleanExpr} = ${result}`;
+                } catch (e) {
+                    return knowledge.calculations[0];
+                }
+            }
+
+            addMessage(sender, text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                messageDiv.innerHTML = sender === 'user' ? 
+                    `<strong>You:</strong> ${this.escapeHtml(text)}` : 
+                    text;
+                this.chatContainer.appendChild(messageDiv);
+                this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            toggleListening() {
+                if (this.isListening) {
+                    this.recognition.stop();
+                } else {
                     this.recognition.start();
                 }
             }
 
-            stopListening() {
-                if (this.recognition) {
-                    this.recognition.stop();
-                }
+            updateStatus(text) {
+                this.status.textContent = text;
             }
-
-            setListening(listening) {
-                this.isListening = listening;
-                const voiceBtn = document.getElementById('voiceBtn');
-                const status = document.getElementById('status');
-                
-                if (listening) {
-                    voiceBtn.textContent = '🔴 Listening...';
-                    voiceBtn.classList.add('listening');
-                    status.innerHTML = '<div>🔴 LISTENING</div><div style="font-size: 12px; opacity: 0.7;">Speak now...</div>';
-                } else {
-                    voiceBtn.textContent = '🎤 Voice Mode';
-                    voiceBtn.classList.remove('listening');
-                    this.updateStatus('🟢 ONLINE', true);
-                }
-            }
-
-            updateStatus(text, online = true) {
-                const status = document.getElementById('status');
-                status.className = online ? 'status online' : 'status offline';
-                status.innerHTML = `<div>${text}</div><div style="font-size: 12px; opacity: 0.7;">Ready for commands</div>`;
-            }
-
-            async speak(text) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9;
-                utterance.pitch = 1.1;
-                utterance.volume = 0.8;
-                
-                // Try to use a more robotic voice
-                const voices = speechSynthesis.getVoices();
-                const jarvisVoice = voices.find(voice => 
-                    voice.name.includes('Google') || voice.name.includes('Microsoft')
-                );
-                if (jarvisVoice) utterance.voice = jarvisVoice;
-                
-                speechSynthesis.speak(utterance);
-                
-                // Add typing effect to chat
-                this.addMessage('JARVIS', text);
-            }
-
-            addMessage(sender, text) {
-                const chatMessages = document.getElementById('chatMessages');
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${sender === 'You' ? 'user-message' : 'jarvis-message'}`;
-                messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            sendMessage() {
-                const input = document.getElementById('chatInput');
-                const message = input.value.trim();
-                if (!message) return;
-
-                this.addMessage('You', message);
-                input.value = '';
-                this.processCommand(message.toLowerCase());
-            }
-
-            processCommand(command) {
-                this.conversationMemory.push(command);
-                const response = this.getAIResponse(command);
-                this.speak(response);
-            }
-
-            getAIResponse(command) {
-                // Advanced AI Logic with Context Awareness
-                if (this.containsAny(command, ['time', 'clock', 'what time'])) {
-                    return `The current time is ${new Date().toLocaleTimeString()}`;
-                }
-                
-                if (this.containsAny(command, ['weather', 'temperature'])) {
-                    return `The weather in your area is 22°C with partly cloudy skies. Perfect for outdoor activities.`;
-                }
-                
-                if (this.containsAny(command, ['joke', 'funny'])) {
-                    const jokes = [
-                        "Why don't scientists trust atoms? Because they make up everything!",
-                        "Why did the scarecrow win an award? He was outstanding in his field!",
-                        "I told my computer I needed a break, now it won't stop sending me KitKat ads!"
-                    ];
-                    return randomItem(jokes);
-                }
-                
-                if (this.containsAny(command, ['news', 'headlines'])) {
-                    return "Top headlines: SpaceX launches new rocket, AI breakthrough in quantum computing, and global markets are up 2% today.";
-                }
-                
-                if (command.includes('memory') || command.includes('remember')) {
-                    return `I remember our ${this.conversationMemory.length} interactions. You last asked about ${this.conversationMemory.slice(-2).join(' and ')}.`;
-                }
-                
-                if (this.containsAny(command, ['hello', 'hi', 'hey', 'good morning'])) {
-                    const greetings = [
-                        "Hello Sir, how may I assist you?",
-                        "Greetings! Ready for your commands.",
-                        "Good day! JARVIS at your service."
-                    ];
-                    return randomItem(greetings);
-                }
-                
-                if (command.includes('calculate') || command.match(/\d+\s*[\+\-\*\/]\s*\d+/)) {
-                    try {
-                        const result = eval(command.replace(/calculate\s*/, '')); // Use math.js in production
-                        return `The result is ${result}`;
-                    } catch {
-                        return "Let me calculate that for you... The answer is 42!";
-                    }
-                }
-                
-                if (command.includes('who is') || command.includes('what is')) {
-                    const subjects = ['elon musk', 'jarvis', 'ai', 'iron man'];
-                    if (subjects.some(s => command.includes(s))) {
-                        return "That is a fascinating subject. Would you like the short version or the complete analysis?";
-                    }
-                }
-                
-                // Personality responses
-                const personality = [
-                    "Intriguing command, Sir. Processing...",
-                    "Analyzing your request... One moment.",
-                    "That's a new one! Let me think about that.",
-                    "Command acknowledged. Executing with precision."
-                ];
-                
-                return randomItem(personality) + " I can help with time, weather, jokes, news, calculations, or just chat!";
-            }
-
-            containsAny(text, words) {
-                return words.some(word => text.includes(word));
-            }
-
-            createMatrixBackground() {
-                const canvas = document.getElementById('matrixCanvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-
-                const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-                const fontSize = 14;
-                const columns = canvas.width / fontSize;
-                const drops = Array(Math.floor(columns)).fill(1);
-
-                function draw() {
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    ctx.fillStyle = '#00ff88';
-                    ctx.font = `${fontSize}px monospace`;
-                    
-                    for (let i = 0; i < drops.length; i++) {
-                        const text = chars[Math.floor(Math.random() * chars.length)];
-                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                        
-                        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                            drops[i] = 0;
-                        }
-                        drops[i]++;
-                    }
-                }
-
-                setInterval(draw, 50);
-            }
-        }
-
-        function randomItem(array) {
-            return array[Math.floor(Math.random() * array.length)];
-        }
-
-        function quickCommand(command) {
-            jarvis.processCommand(command);
         }
 
         // Initialize JARVIS when page loads
-        let jarvis;
         window.addEventListener('load', () => {
-            jarvis = new JARVIS();
+            // Load voices after they are available
+            speechSynthesis.onvoiceschanged = () => {
+                new JARVIS();
+            };
+            
+            // Fallback if voices don't load
+            setTimeout(() => {
+                if (!window.jarvis) {
+                    new JARVIS();
+                }
+            }, 1000);
         });
 
-        // Responsive canvas resize
-        window.addEventListener('resize', () => {
-            const canvas = document.getElementById('matrix-bg');
-            canvas.width = window.innerWidth;
-            canvas.height = window
+        // Global reference
+        window.jarvis = null;
+    </script>
+</body>
+</html>
