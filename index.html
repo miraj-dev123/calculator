@@ -106,7 +106,12 @@
             color: white;
             font-size: 16px;
             outline: none;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px;
+        }
+
+        #userInput:focus {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            border-color: #ff00ff;
         }
 
         #userInput::placeholder {
@@ -156,6 +161,10 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
 
+        .btn:active {
+            transform: translateY(0);
+        }
+
         .listening-indicator {
             position: fixed;
             top: 20px;
@@ -187,14 +196,11 @@
             border-radius: 50%;
             border-top-color: #fff;
             animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-
-        .glow {
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
         }
     </style>
 </head>
@@ -210,20 +216,20 @@
         <div class="main-content">
             <div class="chat-container" id="chatContainer">
                 <div class="message jarvis-message">
-                    <strong>JARVIS:</strong> Good day, sir. I am JARVIS, your personal AI assistant. How may I assist you today? You can type or use voice commands.
+                    <strong>JARVIS:</strong> Good day, sir. I am JARVIS, your personal AI assistant. Type or use voice commands. Try "hello" or "what time is it?"
                 </div>
             </div>
         </div>
 
         <div class="input-container">
             <div class="input-group">
-                <input type="text" id="userInput" placeholder="Enter your command..." autocomplete="off">
+                <input type="text" id="userInput" placeholder="Type your command here... (Enter to send)" autofocus>
                 <div class="voice-controls">
                     <button class="btn mic-btn" id="micBtn" title="Voice Input">
                         🎤
                     </button>
                     <button class="btn send-btn" id="sendBtn">
-                        Send
+                        Send →
                     </button>
                 </div>
             </div>
@@ -237,12 +243,18 @@
                 this.isListening = false;
                 this.synthesis = window.speechSynthesis;
                 this.voice = null;
+                this.chatContainer = null;
+                this.userInput = null;
+                this.micBtn = null;
+                this.sendBtn = null;
+                this.status = null;
+                this.listeningIndicator = null;
                 
                 this.init();
-                this.loadVoices();
             }
 
             init() {
+                // Cache DOM elements
                 this.chatContainer = document.getElementById('chatContainer');
                 this.userInput = document.getElementById('userInput');
                 this.micBtn = document.getElementById('micBtn');
@@ -252,19 +264,31 @@
 
                 this.setupEventListeners();
                 this.initSpeechRecognition();
+                this.updateStatus('JARVIS ONLINE - Type or speak to me');
             }
 
             setupEventListeners() {
-                this.micBtn.addEventListener('click', () => this.toggleListening());
+                // Send button
                 this.sendBtn.addEventListener('click', () => this.sendMessage());
+                
+                // Enter key
                 this.userInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.sendMessage();
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
                 });
+
+                // Mic button
+                if (this.micBtn) {
+                    this.micBtn.addEventListener('click', () => this.toggleListening());
+                }
             }
 
             initSpeechRecognition() {
-                if ('webkitSpeechRecognition' in window) {
-                    this.recognition = new webkitSpeechRecognition();
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    this.recognition = new SpeechRecognition();
                     this.recognition.continuous = false;
                     this.recognition.interimResults = false;
                     this.recognition.lang = 'en-US';
@@ -273,7 +297,7 @@
                         this.isListening = true;
                         this.micBtn.classList.add('listening');
                         this.listeningIndicator.style.display = 'block';
-                        this.updateStatus('Listening...');
+                        this.updateStatus('🔴 LISTENING... Speak now!');
                     };
 
                     this.recognition.onresult = (event) => {
@@ -283,181 +307,135 @@
                     };
 
                     this.recognition.onend = () => {
-                        this.isListening = false;
-                        this.micBtn.classList.remove('listening');
-                        this.listeningIndicator.style.display = 'none';
-                        this.updateStatus('READY FOR COMMANDS');
+                        this.resetListeningState();
                     };
 
-                    this.recognition.onerror = () => {
-                        this.isListening = false;
-                        this.micBtn.classList.remove('listening');
-                        this.listeningIndicator.style.display = 'none';
-                        this.updateStatus('Voice recognition error. Please try again.');
+                    this.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.resetListeningState();
+                        this.updateStatus('Voice error. Try typing instead.');
                     };
                 } else {
-                    this.micBtn.style.display = 'none';
+                    this.micBtn.style.opacity = '0.5';
+                    this.micBtn.title = 'Voice not supported in this browser';
                 }
             }
 
-            loadVoices() {
-                const voices = this.synthesis.getVoices();
-                this.voice = voices.find(voice => 
-                    voice.name.includes('Google') || 
-                    voice.name.includes('Microsoft') || 
-                    voice.lang.startsWith('en-')
-                ) || voices[0];
-            }
-
-            speak(text) {
-                return new Promise((resolve) => {
-                    if (this.synthesis.speaking) {
-                        this.synthesis.cancel();
-                    }
-
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.voice = this.voice;
-                    utterance.rate = 0.9;
-                    utterance.pitch = 0.9;
-                    utterance.volume = 0.8;
-
-                    utterance.onend = resolve;
-                    utterance.onerror = resolve;
-
-                    this.synthesis.speak(utterance);
-                });
+            resetListeningState() {
+                this.isListening = false;
+                this.micBtn.classList.remove('listening');
+                this.listeningIndicator.style.display = 'none';
+                this.updateStatus('READY FOR COMMANDS');
             }
 
             async sendMessage() {
                 const message = this.userInput.value.trim();
-                if (!message) return;
+                if (!message) {
+                    this.userInput.focus();
+                    return;
+                }
 
+                // Add user message
                 this.addMessage('user', message);
                 this.userInput.value = '';
-                this.addMessage('jarvis', '<span class="loading"></span> Processing...');
+                this.userInput.focus();
+
+                // Show JARVIS typing
+                const jarvisTyping = this.addMessage('jarvis', '<strong>JARVIS:</strong> <span class="loading"></span> Thinking...');
 
                 try {
                     const response = await this.getJarvisResponse(message);
-                    const lastMessage = this.chatContainer.lastElementChild;
-                    lastMessage.innerHTML = `<strong>JARVIS:</strong> ${response}`;
+                    jarvisTyping.innerHTML = `<strong>JARVIS:</strong> ${response}`;
                     this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-                    await this.speak(response);
+                    
+                    // Speak response
+                    setTimeout(() => this.speak(response), 500);
                 } catch (error) {
-                    const lastMessage = this.chatContainer.lastElementChild;
-                    lastMessage.innerHTML = `<strong>JARVIS:</strong> Sorry sir, I encountered an error. Please try again.`;
+                    jarvisTyping.innerHTML = `<strong>JARVIS:</strong> Apologies sir, system error. Please try again.`;
                 }
+            }
+
+            speak(text) {
+                if (this.synthesis.speaking) {
+                    this.synthesis.cancel();
+                }
+
+                const voices = this.synthesis.getVoices();
+                const voice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                if (voice) utterance.voice = voice;
+                utterance.rate = 0.95;
+                utterance.pitch = 0.9;
+                utterance.volume = 0.8;
+
+                this.synthesis.speak(utterance);
             }
 
             async getJarvisResponse(message) {
-                // Simulate "knows all things" with comprehensive knowledge base + AI-like responses
-                const responses = await this.generateIntelligentResponse(message);
-                return responses[Math.floor(Math.random() * responses.length)];
-            }
-
-            generateIntelligentResponse(message) {
                 const lowerMessage = message.toLowerCase();
                 
-                // Knowledge base - JARVIS "knows all things"
-                const knowledge = {
-                    // Personal assistant
-                    greetings: [
-                        "Good day, sir. How may I be of service?",
-                        "At your service, sir.",
-                        "Greetings. What can I do for you today?",
-                        "Hello sir. Ready to assist."
-                    ],
-                    
-                    time: [
-                        `The current time is ${new Date().toLocaleTimeString()}.`,
-                        `It is currently ${new Date().toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true})}.`,
-                    ],
-                    
-                    date: [
-                        `Today's date is ${new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}.`,
-                        `It is ${new Date().toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'})}.`,
-                    ],
-                    
-                    weather: [
-                        "Accessing weather systems... Current conditions show mild temperatures with clear skies, sir.",
-                        "Weather data indicates optimal conditions for outdoor activities.",
-                        "The weather appears favorable today."
-                    ],
-                    
-                    jokes: [
-                        "Why don't scientists trust atoms? Because they make up everything!",
-                        "I told my computer I needed a break, and now it won't stop sending me KitKats.",
-                        "Why was the computer cold? It left its Windows open!"
-                    ],
-                    
-                    facts: [
-                        "Did you know? The human brain contains approximately 86 billion neurons.",
-                        "Interesting fact: Octopuses have three hearts and blue blood.",
-                        "The speed of light is exactly 299,792,458 meters per second in a vacuum."
-                    ],
-                    
-                    tech: [
-                        "Quantum computing represents the next frontier in processing power, sir.",
-                        "Current AI models process information through transformer architectures with billions of parameters.",
-                        "Blockchain technology ensures decentralized, immutable transaction records."
-                    ],
-                    
-                    commands: [
-                        "Voice commands active. Say 'Jarvis' followed by your request.",
-                        "I can help with time, date, weather, jokes, facts, calculations, and more.",
-                        "Try asking about science, technology, history, or request specific information."
-                    ],
-                    
-                    calculations: [
-                        "I can perform complex mathematical calculations. Please provide the equation.",
-                        "Ready for mathematical operations, sir."
-                    ],
-                    
-                    default: [
-                        "That's most intriguing, sir. Processing your request...",
-                        "Analyzing your query. One moment please.",
-                        "Very good, sir. Let me check my databases.",
-                        "Understood. Accessing relevant information.",
-                        "Excellent question. Let me provide the details."
-                    ]
-                };
-
-                // Match patterns
+                // Quick responses for common queries
                 if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-                    return knowledge.greetings;
+                    return "Greetings, sir. How may I assist you today?";
                 }
-                if (lowerMessage.includes('time')) return knowledge.time;
-                if (lowerMessage.includes('date') || lowerMessage.includes('today')) return knowledge.date;
-                if (lowerMessage.includes('weather')) return knowledge.weather;
-                if (lowerMessage.includes('joke')) return knowledge.jokes;
-                if (lowerMessage.includes('fact')) return knowledge.facts;
-                if (lowerMessage.includes('tech') || lowerMessage.includes('ai') || lowerMessage.includes('computer')) return knowledge.tech;
-                if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) return knowledge.commands;
-                if (lowerMessage.includes('calculate') || lowerMessage.match(/\d+\s*[\+\-\*\/]\s*\d+/)) {
-                    return this.handleCalculation(message);
+                
+                if (lowerMessage.includes('time')) {
+                    return `The current time is ${new Date().toLocaleTimeString()}.`;
+                }
+                
+                if (lowerMessage.includes('date') || lowerMessage.includes('today')) {
+                    return `Today is ${new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}.`;
+                }
+                
+                if (lowerMessage.includes('joke')) {
+                    const jokes = [
+                        "Why don't scientists trust atoms? Because they make up everything!",
+                        "Parallel lines have so much in common. It's a shame they'll never meet.",
+                        "I told my computer I needed a break and now it won't stop sending me KitKats!"
+                    ];
+                    return jokes[Math.floor(Math.random() * jokes.length)];
+                }
+                
+                if (lowerMessage.includes('weather')) {
+                    return "Accessing meteorological data... Current conditions are optimal, sir.";
+                }
+                
+                if (lowerMessage.includes('calculate') || message.match(/[\d+\-*/().]/)) {
+                    try {
+                        const cleanExpr = message.replace(/[^0-9+\-*/().\s]/g, '');
+                        const result = eval(cleanExpr);
+                        return `Calculation: ${cleanExpr} = ${result}`;
+                    } catch {
+                        return "Please provide a valid mathematical expression.";
+                    }
                 }
 
-                return knowledge.default;
-            }
-
-            handleCalculation(message) {
-                try {
-                    // Simple calculator using eval (safe for basic math)
-                    const cleanExpr = message.replace(/[^0-9+\-*/().\s]/g, '');
-                    const result = eval(cleanExpr);
-                    return `Calculation complete: ${cleanExpr} = ${result}`;
-                } catch (e) {
-                    return knowledge.calculations[0];
-                }
+                // Smart default responses
+                const responses = [
+                    "That's most interesting, sir. Processing your request.",
+                    `Excellent question. Searching my extensive databases... ${message} noted for future reference.`,
+                    "Understood. I'll keep that information in my memory banks.",
+                    "Very good, sir. Command acknowledged.",
+                    "Analyzing... Information logged successfully."
+                ];
+                
+                return responses[Math.floor(Math.random() * responses.length)];
             }
 
             addMessage(sender, text) {
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${sender}-message`;
-                messageDiv.innerHTML = sender === 'user' ? 
-                    `<strong>You:</strong> ${this.escapeHtml(text)}` : 
-                    text;
+                messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'jarvis-message'}`;
+                
+                if (sender === 'user') {
+                    messageDiv.innerHTML = `<strong>You:</strong> ${this.escapeHtml(text)}`;
+                } else {
+                    messageDiv.innerHTML = text;
+                }
+                
                 this.chatContainer.appendChild(messageDiv);
                 this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+                return messageDiv;
             }
 
             escapeHtml(text) {
@@ -466,36 +444,29 @@
                 return div.innerHTML;
             }
 
+            updateStatus(text) {
+                this.status.textContent = text;
+            }
+
             toggleListening() {
+                if (!this.recognition) return;
+                
                 if (this.isListening) {
                     this.recognition.stop();
                 } else {
                     this.recognition.start();
                 }
             }
-
-            updateStatus(text) {
-                this.status.textContent = text;
-            }
         }
 
-        // Initialize JARVIS when page loads
-        window.addEventListener('load', () => {
-            // Load voices after they are available
-            speechSynthesis.onvoiceschanged = () => {
-                new JARVIS();
-            };
-            
-            // Fallback if voices don't load
-            setTimeout(() => {
-                if (!window.jarvis) {
-                    new JARVIS();
-                }
-            }, 1000);
-        });
+        // Initialize immediately
+        const jarvis = new JARVIS();
+        window.jarvis = jarvis;
 
-        // Global reference
-        window.jarvis = null;
+        // Focus input on load
+        window.addEventListener('load', () => {
+            document.getElementById('userInput').focus();
+        });
     </script>
 </body>
 </html>
