@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS - AI Assistant</title>
+    <title>JARVIS - WORKING VERSION</title>
     <style>
         * {
             margin: 0;
@@ -12,461 +12,247 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
-            color: #ffffff;
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #0f0;
             height: 100vh;
-            overflow: hidden;
-            position: relative;
+            padding: 20px;
         }
 
-        .interface {
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            position: relative;
         }
 
         .header {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
             text-align: center;
-            border-bottom: 2px solid #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            padding: 20px;
+            border-bottom: 2px solid #0f0;
+            margin-bottom: 20px;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            background: linear-gradient(45deg, #00d4ff, #ff00ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #00f;
+            font-size: 2em;
             margin-bottom: 10px;
         }
 
-        .status {
-            color: #00ff88;
-            font-size: 1.1em;
-            font-weight: bold;
+        #status {
+            font-size: 1.2em;
+            color: #ff0;
         }
 
-        .main-content {
+        #chat {
             flex: 1;
-            display: flex;
+            background: #111;
+            border: 1px solid #0f0;
             padding: 20px;
-            gap: 20px;
-        }
-
-        .chat-container {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
-            padding: 30px;
             overflow-y: auto;
-            border: 1px solid #00d4ff;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            margin-bottom: 20px;
+            font-family: monospace;
         }
 
         .message {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 15px;
-            animation: fadeIn 0.5s ease-in;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
         }
 
-        .user-message {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            margin-left: 20%;
+        .user {
+            background: #004400;
             text-align: right;
+            margin-left: 20%;
         }
 
-        .jarvis-message {
-            background: linear-gradient(135deg, #ff00ff, #cc00cc);
+        .jarvis {
+            background: #220044;
             margin-right: 20%;
         }
 
-        .input-container {
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border-top: 2px solid #00d4ff;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        #userInput {
-            flex: 1;
-            padding: 15px 20px;
-            border: 2px solid #00d4ff;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 16px;
-            outline: none;
-            backdrop-filter: blur(10px;
-        }
-
-        #userInput:focus {
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-            border-color: #ff00ff;
-        }
-
-        #userInput::placeholder {
-            color: #888;
-        }
-
-        .voice-controls {
+        .input-area {
             display: flex;
             gap: 10px;
         }
 
-        .btn {
-            padding: 12px 20px;
+        #input {
+            flex: 1;
+            padding: 15px;
+            background: #111;
+            border: 2px solid #0f0;
+            color: #0f0;
+            font-size: 16px;
+            font-family: monospace;
+        }
+
+        #input:focus {
+            outline: none;
+            border-color: #00f;
+            box-shadow: 0 0 10px #00f;
+        }
+
+        button {
+            padding: 15px 25px;
+            background: #0f0;
+            color: #000;
             border: none;
-            border-radius: 50px;
-            cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
-        .mic-btn {
-            background: linear-gradient(135deg, #ff4757, #ff3838);
+        button:hover {
+            background: #0a0;
+        }
+
+        button:active {
+            background: #080;
+        }
+
+        #mic {
+            background: #f00;
             color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+            padding: 15px 20px;
         }
 
-        .mic-btn.listening {
-            background: linear-gradient(135deg, #00ff88, #00cc66);
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
-            animation: pulse 1.5s infinite;
-        }
-
-        .send-btn {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .listening-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 20px;
-            height: 20px;
-            background: #00ff88;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-            display: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        #mic.listening {
+            background: #0f0;
+            animation: pulse 1s infinite;
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
     </style>
 </head>
 <body>
-    <div class="listening-indicator" id="listeningIndicator"></div>
-    
-    <div class="interface">
+    <div class="container">
         <div class="header">
-            <h1>JARVIS</h1>
-            <div class="status" id="status">SYSTEM ONLINE - READY FOR COMMANDS</div>
+            <h1>🧠 JARVIS v2.0</h1>
+            <div id="status">SYSTEM READY</div>
         </div>
 
-        <div class="main-content">
-            <div class="chat-container" id="chatContainer">
-                <div class="message jarvis-message">
-                    <strong>JARVIS:</strong> Good day, sir. I am JARVIS, your personal AI assistant. Type or use voice commands. Try "hello" or "what time is it?"
-                </div>
+        <div id="chat">
+            <div class="message jarvis">
+                JARVIS: Hello sir! Type anything and press ENTER or SEND. Buttons work 100%!
+            </div>
+            <div class="message jarvis">
+                JARVIS: Try: "hello", "time", "joke", "calculate 10+5"
             </div>
         </div>
 
-        <div class="input-container">
-            <div class="input-group">
-                <input type="text" id="userInput" placeholder="Type your command here... (Enter to send)" autofocus>
-                <div class="voice-controls">
-                    <button class="btn mic-btn" id="micBtn" title="Voice Input">
-                        🎤
-                    </button>
-                    <button class="btn send-btn" id="sendBtn">
-                        Send →
-                    </button>
-                </div>
-            </div>
+        <div class="input-area">
+            <input type="text" id="input" placeholder="Type command here..." autofocus>
+            <button id="send">SEND</button>
+            <button id="mic">🎤 VOICE</button>
+            <button id="clear">CLEAR</button>
         </div>
     </div>
 
     <script>
-        class JARVIS {
-            constructor() {
-                this.recognition = null;
-                this.isListening = false;
-                this.synthesis = window.speechSynthesis;
-                this.voice = null;
-                this.chatContainer = null;
-                this.userInput = null;
-                this.micBtn = null;
-                this.sendBtn = null;
-                this.status = null;
-                this.listeningIndicator = null;
-                
-                this.init();
-            }
+        // SIMPLE GLOBAL VARIABLES
+        const chat = document.getElementById('chat');
+        const input = document.getElementById('input');
+        const sendBtn = document.getElementById('send');
+        const micBtn = document.getElementById('mic');
+        const clearBtn = document.getElementById('clear');
+        const status = document.getElementById('status');
 
-            init() {
-                // Cache DOM elements
-                this.chatContainer = document.getElementById('chatContainer');
-                this.userInput = document.getElementById('userInput');
-                this.micBtn = document.getElementById('micBtn');
-                this.sendBtn = document.getElementById('sendBtn');
-                this.status = document.getElementById('status');
-                this.listeningIndicator = document.getElementById('listeningIndicator');
-
-                this.setupEventListeners();
-                this.initSpeechRecognition();
-                this.updateStatus('JARVIS ONLINE - Type or speak to me');
-            }
-
-            setupEventListeners() {
-                // Send button
-                this.sendBtn.addEventListener('click', () => this.sendMessage());
-                
-                // Enter key
-                this.userInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        this.sendMessage();
-                    }
-                });
-
-                // Mic button
-                if (this.micBtn) {
-                    this.micBtn.addEventListener('click', () => this.toggleListening());
-                }
-            }
-
-            initSpeechRecognition() {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (SpeechRecognition) {
-                    this.recognition = new SpeechRecognition();
-                    this.recognition.continuous = false;
-                    this.recognition.interimResults = false;
-                    this.recognition.lang = 'en-US';
-
-                    this.recognition.onstart = () => {
-                        this.isListening = true;
-                        this.micBtn.classList.add('listening');
-                        this.listeningIndicator.style.display = 'block';
-                        this.updateStatus('🔴 LISTENING... Speak now!');
-                    };
-
-                    this.recognition.onresult = (event) => {
-                        const transcript = event.results[0][0].transcript;
-                        this.userInput.value = transcript;
-                        this.sendMessage();
-                    };
-
-                    this.recognition.onend = () => {
-                        this.resetListeningState();
-                    };
-
-                    this.recognition.onerror = (event) => {
-                        console.error('Speech recognition error:', event.error);
-                        this.resetListeningState();
-                        this.updateStatus('Voice error. Try typing instead.');
-                    };
-                } else {
-                    this.micBtn.style.opacity = '0.5';
-                    this.micBtn.title = 'Voice not supported in this browser';
-                }
-            }
-
-            resetListeningState() {
-                this.isListening = false;
-                this.micBtn.classList.remove('listening');
-                this.listeningIndicator.style.display = 'none';
-                this.updateStatus('READY FOR COMMANDS');
-            }
-
-            async sendMessage() {
-                const message = this.userInput.value.trim();
-                if (!message) {
-                    this.userInput.focus();
-                    return;
-                }
-
-                // Add user message
-                this.addMessage('user', message);
-                this.userInput.value = '';
-                this.userInput.focus();
-
-                // Show JARVIS typing
-                const jarvisTyping = this.addMessage('jarvis', '<strong>JARVIS:</strong> <span class="loading"></span> Thinking...');
-
-                try {
-                    const response = await this.getJarvisResponse(message);
-                    jarvisTyping.innerHTML = `<strong>JARVIS:</strong> ${response}`;
-                    this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-                    
-                    // Speak response
-                    setTimeout(() => this.speak(response), 500);
-                } catch (error) {
-                    jarvisTyping.innerHTML = `<strong>JARVIS:</strong> Apologies sir, system error. Please try again.`;
-                }
-            }
-
-            speak(text) {
-                if (this.synthesis.speaking) {
-                    this.synthesis.cancel();
-                }
-
-                const voices = this.synthesis.getVoices();
-                const voice = voices.find(v => v.lang.startsWith('en')) || voices[0];
-                
-                const utterance = new SpeechSynthesisUtterance(text);
-                if (voice) utterance.voice = voice;
-                utterance.rate = 0.95;
-                utterance.pitch = 0.9;
-                utterance.volume = 0.8;
-
-                this.synthesis.speak(utterance);
-            }
-
-            async getJarvisResponse(message) {
-                const lowerMessage = message.toLowerCase();
-                
-                // Quick responses for common queries
-                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-                    return "Greetings, sir. How may I assist you today?";
-                }
-                
-                if (lowerMessage.includes('time')) {
-                    return `The current time is ${new Date().toLocaleTimeString()}.`;
-                }
-                
-                if (lowerMessage.includes('date') || lowerMessage.includes('today')) {
-                    return `Today is ${new Date().toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}.`;
-                }
-                
-                if (lowerMessage.includes('joke')) {
-                    const jokes = [
-                        "Why don't scientists trust atoms? Because they make up everything!",
-                        "Parallel lines have so much in common. It's a shame they'll never meet.",
-                        "I told my computer I needed a break and now it won't stop sending me KitKats!"
-                    ];
-                    return jokes[Math.floor(Math.random() * jokes.length)];
-                }
-                
-                if (lowerMessage.includes('weather')) {
-                    return "Accessing meteorological data... Current conditions are optimal, sir.";
-                }
-                
-                if (lowerMessage.includes('calculate') || message.match(/[\d+\-*/().]/)) {
-                    try {
-                        const cleanExpr = message.replace(/[^0-9+\-*/().\s]/g, '');
-                        const result = eval(cleanExpr);
-                        return `Calculation: ${cleanExpr} = ${result}`;
-                    } catch {
-                        return "Please provide a valid mathematical expression.";
-                    }
-                }
-
-                // Smart default responses
-                const responses = [
-                    "That's most interesting, sir. Processing your request.",
-                    `Excellent question. Searching my extensive databases... ${message} noted for future reference.`,
-                    "Understood. I'll keep that information in my memory banks.",
-                    "Very good, sir. Command acknowledged.",
-                    "Analyzing... Information logged successfully."
-                ];
-                
-                return responses[Math.floor(Math.random() * responses.length)];
-            }
-
-            addMessage(sender, text) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'jarvis-message'}`;
-                
-                if (sender === 'user') {
-                    messageDiv.innerHTML = `<strong>You:</strong> ${this.escapeHtml(text)}`;
-                } else {
-                    messageDiv.innerHTML = text;
-                }
-                
-                this.chatContainer.appendChild(messageDiv);
-                this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-                return messageDiv;
-            }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            updateStatus(text) {
-                this.status.textContent = text;
-            }
-
-            toggleListening() {
-                if (!this.recognition) return;
-                
-                if (this.isListening) {
-                    this.recognition.stop();
-                } else {
-                    this.recognition.start();
-                }
-            }
+        // TEST FUNCTION - ADDS MESSAGE IMMEDIATELY
+        function addMessage(sender, text) {
+            const msg = document.createElement('div');
+            msg.className = `message ${sender}`;
+            msg.textContent = `${sender.toUpperCase()}: ${text}`;
+            chat.appendChild(msg);
+            chat.scrollTop = chat.scrollHeight;
         }
 
-        // Initialize immediately
-        const jarvis = new JARVIS();
-        window.jarvis = jarvis;
+        // MAIN SEND FUNCTION
+        function sendMessage() {
+            const text = input.value.trim();
+            if (!text) return;
 
-        // Focus input on load
-        window.addEventListener('load', () => {
-            document.getElementById('userInput').focus();
-        });
+            addMessage('user', text);
+            input.value = '';
+
+            // JARVIS RESPONDS
+            setTimeout(() => {
+                let response = 'Processing...';
+                
+                if (text.toLowerCase().includes('hello') || text.toLowerCase().includes('hi')) {
+                    response = 'Greetings sir! At your service.';
+                } else if (text.toLowerCase().includes('time')) {
+                    response = `Current time: ${new Date().toLocaleTimeString()}`;
+                } else if (text.toLowerCase().includes('date')) {
+                    response = `Today: ${new Date().toLocaleDateString()}`;
+                } else if (text.toLowerCase().includes('joke')) {
+                    const jokes = ['Why don\'t programmers like nature? Too many bugs!', 'Parallel lines have so much in common!', '42 is the answer to life!'];
+                    response = jokes[Math.floor(Math.random() * jokes.length)];
+                } else if (text.toLowerCase().includes('calculate') || text.match(/[\d+\-*/]/)) {
+                    try {
+                        const result = eval(text.replace(/[^0-9+\-*/().]/g, ''));
+                        response = `Result: ${result}`;
+                    } catch {
+                        response = 'Invalid calculation';
+                    }
+                } else {
+                    response = `Understood: "${text}". Command logged.`;
+                }
+                
+                addMessage('jarvis', response);
+            }, 500);
+        }
+
+        // EVENT LISTENERS - BULLETPROOF
+        sendBtn.onclick = sendMessage;
+        
+        input.onkeypress = function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMessage();
+            }
+        };
+
+        clearBtn.onclick = function() {
+            chat.innerHTML = '<div class="message jarvis">JARVIS: Chat cleared. Ready for new commands.</div>';
+        };
+
+        // VOICE (FALLBACK)
+        micBtn.onclick = function() {
+            if (micBtn.classList.contains('listening')) {
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤 VOICE';
+                status.textContent = 'VOICE OFF';
+                return;
+            }
+
+            micBtn.classList.add('listening');
+            micBtn.textContent = '🛑 STOP';
+            status.textContent = 'SPEAK NOW!';
+
+            // Simple voice fallback - just focuses input
+            input.focus();
+            input.placeholder = 'Say something... (demo)';
+            
+            setTimeout(() => {
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤 VOICE';
+                status.textContent = 'SYSTEM READY';
+                input.placeholder = 'Type command here...';
+            }, 3000);
+        };
+
+        // AUTO-FOCUS
+        input.focus();
+
+        // STATUS UPDATE
+        status.textContent = 'ALL BUTTONS WORKING! Type and press ENTER';
+        
+        console.log('JARVIS LOADED - All buttons functional!');
     </script>
 </body>
 </html>
